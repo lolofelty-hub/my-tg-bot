@@ -14,12 +14,9 @@ const messagesDb = new Map(); // Память бота для истории
 // 1. БОТ АВТОМАТИЧЕСКИ ЗАПОМИНАЕТ КАЖДОЕ НОВОЕ СООБЩЕНИЕ (ТЕКСТ И МЕДИА)
 bot.on('business_message', async (ctx) => {
     const msg = ctx.businessMessage;
-    
-    // Если это текст — запоминаем его в память
     if (msg.text) {
         messagesDb.set(msg.message_id, { type: 'text', content: msg.text });
     } 
-    // Если это КРУЖОК, ФОТО или ГОЛОСОВОЕ — Муха-менеджер ЗАРАНЕЕ пересылает его вам
     else if (msg.video_note || msg.photo || msg.voice || msg.video || msg.audio) {
         try {
             const forwarded = await bot.api.forwardMessage(MY_ID, msg.chat.id, msg.message_id);
@@ -40,7 +37,7 @@ bot.on('edited_business_message', async (ctx) => {
     const chatName = msg.chat.title || msg.chat.first_name || "Личный чат";
     
     const saved = messagesDb.get(msg.message_id);
-    const oldText = saved && saved.type === 'text' ? saved.content : "[Раньше тут был не текст]";
+    const oldText = saved && saved.type === 'text' ? saved.content : "[Раньше тут был не text]";
     const newText = msg.text || "[Изменено на медиафайл]";
     
     const report = `🪰 *МУХА-МЕНЕДЖЕР: ИЗМЕНЕНИЕ!*\n\n` +
@@ -85,6 +82,4 @@ bot.on('business_messages_deleted', async (ctx) => {
     }
 });
 
-// Настройка для работы на серверах Vercel (без портов)
-app.post(`*`, webhookCallback(bot, 'express'));
-module.exports = app;
+// Безопасная настройка связи с Telegram при запуске
